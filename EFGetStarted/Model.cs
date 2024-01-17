@@ -2,10 +2,14 @@
 using System;
 using System.Collections.Generic;
 
+namespace EFGetStarted;
+
 public class BloggingContext : DbContext
 {
     public DbSet<Blog> Blogs { get; set; }
     public DbSet<Post> Posts { get; set; }
+    public DbSet<Tasks> Tasks { get; set; }
+    public DbSet<Todo> Todos { get; set; }
 
     public string DbPath { get; }
 

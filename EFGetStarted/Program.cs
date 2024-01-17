@@ -1,5 +1,9 @@
-﻿using System;
+﻿using EFGetStarted;
+using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Quantum.QsCompiler.CompilationBuilder;
+
 
 using var db = new BloggingContext();
 
@@ -28,3 +32,44 @@ db.SaveChanges();
 Console.WriteLine("Delete the blog");
 db.Remove(blog);
 db.SaveChanges();
+//seedTasks();
+
+using (BloggingContext context = new())
+{
+    var tasks = context.Tasks.Include(task => task.Todos);
+    foreach (var task in tasks)
+    {
+        Console.WriteLine($"Task: {task.Name}");
+        foreach (var todo in task.Todos)
+        {
+            Console.WriteLine($"- {todo.Name}"); 
+        }
+    }
+}
+
+
+    static void seedTasks()
+{
+    List<Todo> List1 = new List<Todo>
+    {
+        new Todo(1, "Write code", false),
+        new Todo(2, "Compile source", false),
+        new Todo(3, "Test program", false)
+    };
+    Tasks T1 = new(1, "Produce software", List1);
+
+    List<Todo> List2 = new List<Todo>
+    {
+        new Todo(4, "Pour water", false),
+        new Todo(5, "Pour coffee", false),
+        new Todo(6, "Turn on", false)
+    };
+    Tasks T2 = new Tasks(2, "Brew coffee", List2) { };
+
+    using(BloggingContext context = new())
+    {
+        context.Tasks.Add(T1);
+        context.Tasks.Add(T2);
+        context.SaveChanges();
+    }
+}
