@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Quantum.QsCompiler.CompilationBuilder;
 using System.Text.Json;
+using Microsoft.Quantum.QsCompiler.SyntaxProcessing;
 
 
 using var db = new BloggingContext();
@@ -34,21 +35,9 @@ using var db = new BloggingContext();
 //db.Remove(blog);
 //db.SaveChanges();
 
-printIncompleteTasksAndTodos();
 //seedTasks();
-
-//using (BloggingContext context = new())
-//{
-//    var tasks = context.Tasks.Include(task => task.Todos);
-//    foreach (var task in tasks)
-//    {
-//        Console.WriteLine($"Task: {task.Name}");
-//        foreach (var todo in task.Todos)
-//        {
-//            Console.WriteLine($"- {todo.Name}");
-//        }
-//    }
-//}
+seedWorkers();
+printIncompleteTasksAndTodos();
 
 static void seedTasks()
 {
@@ -72,6 +61,44 @@ static void seedTasks()
     {
         context.Tasks.Add(T1);
         context.Tasks.Add(T2);
+
+        context.SaveChanges();
+    }
+}
+
+static void seedWorkers()
+{
+    Worker Steen = new Worker(0, "Steen Secher", new());
+    Worker Ejvind = new Worker(0, "Ejvind Møller", new());
+    Worker Konrad = new Worker(0, "Konrad Sommer", new());
+    
+    Team frontendTeam = new() { Name = "Frontend"};
+
+    
+    Worker Sofus = new Worker(0, "Sofus Lotus", new());
+    Worker Remo = new Worker(0, "Remo Lademann", new());
+    
+    Team backendTeam = new() { Name = "Backend"};
+
+
+    Worker Ella = new Worker(0, "Ella Fanth", new());
+    Worker Anne = new Worker(0, "Anne Dam", new());
+
+    Team testerTeam = new() { Name = "Testers"};
+
+    using (BloggingContext context = new())
+    {
+        context.TeamWorkers.Add(new TeamWorker { Team = frontendTeam, Worker = Steen});
+        context.TeamWorkers.Add(new TeamWorker { Team = frontendTeam, Worker = Ejvind});
+        context.TeamWorkers.Add(new TeamWorker { Team = frontendTeam, Worker = Konrad});
+
+        context.TeamWorkers.Add(new TeamWorker { Team = backendTeam, Worker = Konrad});
+        context.TeamWorkers.Add(new TeamWorker { Team = backendTeam, Worker = Sofus});
+        context.TeamWorkers.Add(new TeamWorker { Team = backendTeam, Worker = Remo});
+
+        context.TeamWorkers.Add(new TeamWorker { Team = testerTeam, Worker = Ella});
+        context.TeamWorkers.Add(new TeamWorker { Team = testerTeam, Worker = Anne});
+
         context.SaveChanges();
     }
 }
@@ -90,7 +117,7 @@ static void printIncompleteTasksAndTodos()
                     Console.WriteLine($"- {todo.Name} - {todo.IsComplete}");
                 }
             }
-            Console.WriteLine("\n\n");
+            Console.WriteLine("\n");
         }
 
     }

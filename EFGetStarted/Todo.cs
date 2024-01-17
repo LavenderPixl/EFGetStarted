@@ -14,7 +14,7 @@ namespace EFGetStarted
 
         public Todo()
         {
-            
+
         }
         public Todo(int todoId, string name, bool isComplete)
         {
