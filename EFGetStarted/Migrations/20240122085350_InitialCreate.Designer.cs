@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EFGetStarted.Migrations
 {
     [DbContext(typeof(BloggingContext))]
-    [Migration("20240117131854_TeamWorkerAdded")]
-    partial class TeamWorkerAdded
+    [Migration("20240122085350_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -99,6 +99,8 @@ namespace EFGetStarted.Migrations
 
                     b.HasKey("WorkerId", "TeamId");
 
+                    b.HasIndex("TeamId");
+
                     b.ToTable("TeamWorkers");
                 });
 
@@ -140,21 +142,6 @@ namespace EFGetStarted.Migrations
                     b.ToTable("Workers");
                 });
 
-            modelBuilder.Entity("TeamWorker", b =>
-                {
-                    b.Property<int>("TeamsTeamId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("WorkersWorkerId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("TeamsTeamId", "WorkersWorkerId");
-
-                    b.HasIndex("WorkersWorkerId");
-
-                    b.ToTable("TeamWorker");
-                });
-
             modelBuilder.Entity("EFGetStarted.Post", b =>
                 {
                     b.HasOne("EFGetStarted.Blog", "Blog")
@@ -166,26 +153,30 @@ namespace EFGetStarted.Migrations
                     b.Navigation("Blog");
                 });
 
+            modelBuilder.Entity("EFGetStarted.TeamWorker", b =>
+                {
+                    b.HasOne("EFGetStarted.Team", "Team")
+                        .WithMany("Workers")
+                        .HasForeignKey("TeamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EFGetStarted.Worker", "Worker")
+                        .WithMany("Teams")
+                        .HasForeignKey("WorkerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Team");
+
+                    b.Navigation("Worker");
+                });
+
             modelBuilder.Entity("EFGetStarted.Todo", b =>
                 {
                     b.HasOne("EFGetStarted.Tasks", null)
                         .WithMany("Todos")
                         .HasForeignKey("TasksId");
-                });
-
-            modelBuilder.Entity("TeamWorker", b =>
-                {
-                    b.HasOne("EFGetStarted.Team", null)
-                        .WithMany()
-                        .HasForeignKey("TeamsTeamId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EFGetStarted.Worker", null)
-                        .WithMany()
-                        .HasForeignKey("WorkersWorkerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("EFGetStarted.Blog", b =>
@@ -196,6 +187,16 @@ namespace EFGetStarted.Migrations
             modelBuilder.Entity("EFGetStarted.Tasks", b =>
                 {
                     b.Navigation("Todos");
+                });
+
+            modelBuilder.Entity("EFGetStarted.Team", b =>
+                {
+                    b.Navigation("Workers");
+                });
+
+            modelBuilder.Entity("EFGetStarted.Worker", b =>
+                {
+                    b.Navigation("Teams");
                 });
 #pragma warning restore 612, 618
         }

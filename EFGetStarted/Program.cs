@@ -35,8 +35,11 @@ using var db = new BloggingContext();
 //db.Remove(blog);
 //db.SaveChanges();
 
+
+
+//STARTUP! 
 //seedTasks();
-seedWorkers();
+//seedWorkers();
 printIncompleteTasksAndTodos();
 
 static void seedTasks()

@@ -5,7 +5,7 @@
 namespace EFGetStarted.Migrations
 {
     /// <inheritdoc />
-    public partial class TeamWorkerAdded : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -47,18 +47,6 @@ namespace EFGetStarted.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Teams", x => x.TeamId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "TeamWorkers",
-                columns: table => new
-                {
-                    TeamId = table.Column<int>(type: "INTEGER", nullable: false),
-                    WorkerId = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TeamWorkers", x => new { x.WorkerId, x.TeamId });
                 });
 
             migrationBuilder.CreateTable(
@@ -116,24 +104,24 @@ namespace EFGetStarted.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TeamWorker",
+                name: "TeamWorkers",
                 columns: table => new
                 {
-                    TeamsTeamId = table.Column<int>(type: "INTEGER", nullable: false),
-                    WorkersWorkerId = table.Column<int>(type: "INTEGER", nullable: false)
+                    TeamId = table.Column<int>(type: "INTEGER", nullable: false),
+                    WorkerId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TeamWorker", x => new { x.TeamsTeamId, x.WorkersWorkerId });
+                    table.PrimaryKey("PK_TeamWorkers", x => new { x.WorkerId, x.TeamId });
                     table.ForeignKey(
-                        name: "FK_TeamWorker_Teams_TeamsTeamId",
-                        column: x => x.TeamsTeamId,
+                        name: "FK_TeamWorkers_Teams_TeamId",
+                        column: x => x.TeamId,
                         principalTable: "Teams",
                         principalColumn: "TeamId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_TeamWorker_Workers_WorkersWorkerId",
-                        column: x => x.WorkersWorkerId,
+                        name: "FK_TeamWorkers_Workers_WorkerId",
+                        column: x => x.WorkerId,
                         principalTable: "Workers",
                         principalColumn: "WorkerId",
                         onDelete: ReferentialAction.Cascade);
@@ -145,9 +133,9 @@ namespace EFGetStarted.Migrations
                 column: "BlogId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TeamWorker_WorkersWorkerId",
-                table: "TeamWorker",
-                column: "WorkersWorkerId");
+                name: "IX_TeamWorkers_TeamId",
+                table: "TeamWorkers",
+                column: "TeamId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Todos_TasksId",
@@ -160,9 +148,6 @@ namespace EFGetStarted.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Posts");
-
-            migrationBuilder.DropTable(
-                name: "TeamWorker");
 
             migrationBuilder.DropTable(
                 name: "TeamWorkers");
