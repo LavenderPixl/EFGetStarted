@@ -36,29 +36,41 @@ using var db = new BloggingContext();
 //db.SaveChanges();
 
 
+//var team1 = db.Teams.OrderBy(t => t.TeamId).SingleOrDefault(team => team.TeamId == 1);
+//var team2 = db.Teams.OrderBy(t => t.TeamId).SingleOrDefault(team => team.TeamId == 2);
+//Console.WriteLine(team1);
+//Console.WriteLine(team2);
+
 
 //STARTUP! 
-//seedTasks();
-//seedWorkers();
+if (db.Tasks.Count() < 1)
+{
+    seedTasks();
+}
+if (db.Teams.Count() < 1)
+{
+    seedWorkers();
+}
+//giveTasks();
 printIncompleteTasksAndTodos();
 
 static void seedTasks()
 {
     List<Todo> List1 = new List<Todo>
     {
-        new Todo(1, "Write code", false),
-        new Todo(2, "Compile source", false),
-        new Todo(3, "Test program", false)
+        new Todo("Write code", false),
+        new Todo("Compile source", false),
+        new Todo("Test program", false)
     };
-    Tasks T1 = new(1, "Produce software", List1);
+    Tasks T1 = new("Produce software", List1);
 
     List<Todo> List2 = new List<Todo>
     {
-        new Todo(4, "Pour water", false),
-        new Todo(5, "Pour coffee", false),
-        new Todo(6, "Turn on", false)
+        new Todo("Pour water", false),
+        new Todo("Pour coffee", false),
+        new Todo("Turn on", false)
     };
-    Tasks T2 = new Tasks(2, "Brew coffee", List2) { };
+    Tasks T2 = new Tasks("Brew coffee", List2) { };
 
     using (BloggingContext context = new())
     {
@@ -69,38 +81,72 @@ static void seedTasks()
     }
 }
 
+
+static void giveTasks()
+{
+    using (BloggingContext context = new())
+    {
+        int teamId = 1;
+        int taskId = 1;
+
+        //Includes Workers in Team
+        var team = context.Teams.
+            Include(t => t.Workers).
+            Where(team => team.TeamId == teamId).
+            First();
+
+        //Includes Todos in Task
+        var task = context.Tasks.
+            Include(t => t.Todos).
+            Where(task => task.TasksId == taskId).
+            First();
+
+        Todo todoId = task.Todos.FirstOrDefault();
+
+        foreach (var worker in team.Workers)
+        {
+            worker.Worker.Todos = todoId;
+            //Need to
+
+            //Todo todo = task.Todos.Where(t => t.Worker)
+        }        
+        
+        context.SaveChanges();
+    }
+}
+
 static void seedWorkers()
 {
-    Worker Steen = new Worker(0, "Steen Secher", new());
-    Worker Ejvind = new Worker(0, "Ejvind Møller", new());
-    Worker Konrad = new Worker(0, "Konrad Sommer", new());
-    
-    Team frontendTeam = new() { Name = "Frontend"};
+    Worker Steen = new Worker("Steen Secher", new());
+    Worker Ejvind = new Worker("Ejvind Møller", new());
+    Worker Konrad = new Worker("Konrad Sommer", new());
 
-    
-    Worker Sofus = new Worker(0, "Sofus Lotus", new());
-    Worker Remo = new Worker(0, "Remo Lademann", new());
-    
-    Team backendTeam = new() { Name = "Backend"};
+    Team frontendTeam = new() { Name = "Frontend" };
 
 
-    Worker Ella = new Worker(0, "Ella Fanth", new());
-    Worker Anne = new Worker(0, "Anne Dam", new());
+    Worker Sofus = new Worker("Sofus Lotus", new());
+    Worker Remo = new Worker("Remo Lademann", new());
 
-    Team testerTeam = new() { Name = "Testers"};
+    Team backendTeam = new() { Name = "Backend" };
+
+
+    Worker Ella = new Worker("Ella Fanth", new());
+    Worker Anne = new Worker("Anne Dam", new());
+
+    Team testerTeam = new() { Name = "Testers" };
 
     using (BloggingContext context = new())
     {
-        context.TeamWorkers.Add(new TeamWorker { Team = frontendTeam, Worker = Steen});
-        context.TeamWorkers.Add(new TeamWorker { Team = frontendTeam, Worker = Ejvind});
-        context.TeamWorkers.Add(new TeamWorker { Team = frontendTeam, Worker = Konrad});
+        context.TeamWorkers.Add(new TeamWorker { Team = frontendTeam, Worker = Steen });
+        context.TeamWorkers.Add(new TeamWorker { Team = frontendTeam, Worker = Ejvind });
+        context.TeamWorkers.Add(new TeamWorker { Team = frontendTeam, Worker = Konrad });
 
-        context.TeamWorkers.Add(new TeamWorker { Team = backendTeam, Worker = Konrad});
-        context.TeamWorkers.Add(new TeamWorker { Team = backendTeam, Worker = Sofus});
-        context.TeamWorkers.Add(new TeamWorker { Team = backendTeam, Worker = Remo});
+        context.TeamWorkers.Add(new TeamWorker { Team = backendTeam, Worker = Konrad });
+        context.TeamWorkers.Add(new TeamWorker { Team = backendTeam, Worker = Sofus });
+        context.TeamWorkers.Add(new TeamWorker { Team = backendTeam, Worker = Remo });
 
-        context.TeamWorkers.Add(new TeamWorker { Team = testerTeam, Worker = Ella});
-        context.TeamWorkers.Add(new TeamWorker { Team = testerTeam, Worker = Anne});
+        context.TeamWorkers.Add(new TeamWorker { Team = testerTeam, Worker = Ella });
+        context.TeamWorkers.Add(new TeamWorker { Team = testerTeam, Worker = Anne });
 
         context.SaveChanges();
     }

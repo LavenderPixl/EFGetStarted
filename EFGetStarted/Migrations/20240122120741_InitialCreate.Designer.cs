@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EFGetStarted.Migrations
 {
     [DbContext(typeof(BloggingContext))]
-    [Migration("20240122085350_InitialCreate")]
+    [Migration("20240122120741_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -19,45 +19,6 @@ namespace EFGetStarted.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.1");
-
-            modelBuilder.Entity("EFGetStarted.Blog", b =>
-                {
-                    b.Property<int>("BlogId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("BlogId");
-
-                    b.ToTable("Blogs");
-                });
-
-            modelBuilder.Entity("EFGetStarted.Post", b =>
-                {
-                    b.Property<int>("PostId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("BlogId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("PostId");
-
-                    b.HasIndex("BlogId");
-
-                    b.ToTable("Posts");
-                });
 
             modelBuilder.Entity("EFGetStarted.Tasks", b =>
                 {
@@ -69,7 +30,12 @@ namespace EFGetStarted.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("TeamId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("TasksId");
+
+                    b.HasIndex("TeamId");
 
                     b.ToTable("Tasks");
                 });
@@ -80,11 +46,16 @@ namespace EFGetStarted.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("CurrentTaskTasksId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("TeamId");
+
+                    b.HasIndex("CurrentTaskTasksId");
 
                     b.ToTable("Teams");
                 });
@@ -120,9 +91,14 @@ namespace EFGetStarted.Migrations
                     b.Property<int?>("TasksId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("WorkerId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("TodoId");
 
                     b.HasIndex("TasksId");
+
+                    b.HasIndex("WorkerId");
 
                     b.ToTable("Todos");
                 });
@@ -133,24 +109,34 @@ namespace EFGetStarted.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("CurrentTodoTodoId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("WorkerId");
 
+                    b.HasIndex("CurrentTodoTodoId");
+
                     b.ToTable("Workers");
                 });
 
-            modelBuilder.Entity("EFGetStarted.Post", b =>
+            modelBuilder.Entity("EFGetStarted.Tasks", b =>
                 {
-                    b.HasOne("EFGetStarted.Blog", "Blog")
-                        .WithMany("Posts")
-                        .HasForeignKey("BlogId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("EFGetStarted.Team", null)
+                        .WithMany("Tasks")
+                        .HasForeignKey("TeamId");
+                });
 
-                    b.Navigation("Blog");
+            modelBuilder.Entity("EFGetStarted.Team", b =>
+                {
+                    b.HasOne("EFGetStarted.Tasks", "CurrentTask")
+                        .WithMany()
+                        .HasForeignKey("CurrentTaskTasksId");
+
+                    b.Navigation("CurrentTask");
                 });
 
             modelBuilder.Entity("EFGetStarted.TeamWorker", b =>
@@ -177,11 +163,19 @@ namespace EFGetStarted.Migrations
                     b.HasOne("EFGetStarted.Tasks", null)
                         .WithMany("Todos")
                         .HasForeignKey("TasksId");
+
+                    b.HasOne("EFGetStarted.Worker", null)
+                        .WithMany("Todos")
+                        .HasForeignKey("WorkerId");
                 });
 
-            modelBuilder.Entity("EFGetStarted.Blog", b =>
+            modelBuilder.Entity("EFGetStarted.Worker", b =>
                 {
-                    b.Navigation("Posts");
+                    b.HasOne("EFGetStarted.Todo", "CurrentTodo")
+                        .WithMany()
+                        .HasForeignKey("CurrentTodoTodoId");
+
+                    b.Navigation("CurrentTodo");
                 });
 
             modelBuilder.Entity("EFGetStarted.Tasks", b =>
@@ -191,12 +185,16 @@ namespace EFGetStarted.Migrations
 
             modelBuilder.Entity("EFGetStarted.Team", b =>
                 {
+                    b.Navigation("Tasks");
+
                     b.Navigation("Workers");
                 });
 
             modelBuilder.Entity("EFGetStarted.Worker", b =>
                 {
                     b.Navigation("Teams");
+
+                    b.Navigation("Todos");
                 });
 #pragma warning restore 612, 618
         }

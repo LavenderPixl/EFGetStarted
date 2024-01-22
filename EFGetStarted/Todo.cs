@@ -11,14 +11,13 @@ namespace EFGetStarted
         public int TodoId { get; set; }
         public string Name { get; set; }
         public bool IsComplete { get; set; }
-
+        public Worker? Worker { get; set; }
         public Todo()
         {
 
         }
-        public Todo(int todoId, string name, bool isComplete)
+        public Todo(string name, bool isComplete)
         {
-            TodoId = todoId;
             Name = name;
             IsComplete = isComplete;
         }

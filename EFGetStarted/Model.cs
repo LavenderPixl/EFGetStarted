@@ -33,5 +33,7 @@ public class BloggingContext : DbContext
             o.WorkerId,
             o.TeamId
         });
+        //modelBuilder.Entity<Worker>().
+        //    HasOne<Todo>().WithMany().IsRequired(false);
     }
 }

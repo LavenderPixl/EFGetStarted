@@ -11,15 +11,14 @@ namespace EFGetStarted
         public int TeamId { get; set; }
         public string Name { get; set; }
         public List<TeamWorker> Workers { get; set; }
-        public Task CurrentTask { get; set; }
-        public List<Task> Tasks { get; set; }
+        public Tasks? CurrentTask { get; set; }
+        public List<Tasks>? Tasks { get; set; }
         public Team()
         {
 
         }
-        public Team(int teamId, string name, List<TeamWorker> workers)
+        public Team(string name, List<TeamWorker> workers)
         {
-            TeamId = teamId;
             Name = name;
             Workers = workers;
         }

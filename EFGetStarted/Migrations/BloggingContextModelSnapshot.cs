@@ -27,7 +27,12 @@ namespace EFGetStarted.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("TeamId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("TasksId");
+
+                    b.HasIndex("TeamId");
 
                     b.ToTable("Tasks");
                 });
@@ -38,11 +43,16 @@ namespace EFGetStarted.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("CurrentTaskTasksId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("TeamId");
+
+                    b.HasIndex("CurrentTaskTasksId");
 
                     b.ToTable("Teams");
                 });
@@ -78,9 +88,14 @@ namespace EFGetStarted.Migrations
                     b.Property<int?>("TasksId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("WorkerId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("TodoId");
 
                     b.HasIndex("TasksId");
+
+                    b.HasIndex("WorkerId");
 
                     b.ToTable("Todos");
                 });
@@ -91,13 +106,34 @@ namespace EFGetStarted.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("CurrentTodoTodoId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("WorkerId");
 
+                    b.HasIndex("CurrentTodoTodoId");
+
                     b.ToTable("Workers");
+                });
+
+            modelBuilder.Entity("EFGetStarted.Tasks", b =>
+                {
+                    b.HasOne("EFGetStarted.Team", null)
+                        .WithMany("Tasks")
+                        .HasForeignKey("TeamId");
+                });
+
+            modelBuilder.Entity("EFGetStarted.Team", b =>
+                {
+                    b.HasOne("EFGetStarted.Tasks", "CurrentTask")
+                        .WithMany()
+                        .HasForeignKey("CurrentTaskTasksId");
+
+                    b.Navigation("CurrentTask");
                 });
 
             modelBuilder.Entity("EFGetStarted.TeamWorker", b =>
@@ -124,6 +160,19 @@ namespace EFGetStarted.Migrations
                     b.HasOne("EFGetStarted.Tasks", null)
                         .WithMany("Todos")
                         .HasForeignKey("TasksId");
+
+                    b.HasOne("EFGetStarted.Worker", null)
+                        .WithMany("Todos")
+                        .HasForeignKey("WorkerId");
+                });
+
+            modelBuilder.Entity("EFGetStarted.Worker", b =>
+                {
+                    b.HasOne("EFGetStarted.Todo", "CurrentTodo")
+                        .WithMany()
+                        .HasForeignKey("CurrentTodoTodoId");
+
+                    b.Navigation("CurrentTodo");
                 });
 
             modelBuilder.Entity("EFGetStarted.Tasks", b =>
@@ -133,12 +182,16 @@ namespace EFGetStarted.Migrations
 
             modelBuilder.Entity("EFGetStarted.Team", b =>
                 {
+                    b.Navigation("Tasks");
+
                     b.Navigation("Workers");
                 });
 
             modelBuilder.Entity("EFGetStarted.Worker", b =>
                 {
                     b.Navigation("Teams");
+
+                    b.Navigation("Todos");
                 });
 #pragma warning restore 612, 618
         }

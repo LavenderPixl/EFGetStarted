@@ -16,9 +16,8 @@ namespace EFGetStarted
         {
 
         }
-        public Tasks(int tasksId, string name, List<Todo> todos)
+        public Tasks(string name, List<Todo> todos)
         {
-            TasksId = tasksId;
             Name = name;
             Todos = todos;
         }
