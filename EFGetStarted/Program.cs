@@ -5,12 +5,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Quantum.QsCompiler.CompilationBuilder;
 using System.Text.Json;
 using Microsoft.Quantum.QsCompiler.SyntaxProcessing;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 
 using var db = new BloggingContext();
 
 //// Note: This sample requires the database to be created before running.
-//Console.WriteLine($"Database path: {db.DbPath}.");
+Console.WriteLine($"Database path: {db.DbPath}.");
 
 //// Create
 //Console.WriteLine("Inserting a new blog");
@@ -51,7 +52,7 @@ if (db.Teams.Count() < 1)
 {
     seedWorkers();
 }
-//giveTasks();
+giveTasks();
 printIncompleteTasksAndTodos();
 
 static void seedTasks()
@@ -80,37 +81,111 @@ static void seedTasks()
         context.SaveChanges();
     }
 }
+static List<Team> getTeams()
+{
+    using (BloggingContext context = new())
+    {
+        //Gets all teams.
+        var team = context.Teams.
+            Include(t => t.Workers).
+            ThenInclude(tt => tt.Worker);
+
+        List<Team> _teamList = new();
+
+        foreach (var item in team)
+        {
+            _teamList.Add(item);
+        }
+        return _teamList;
+    }
+}
+static List<Tasks> getTasks()
+{
+    using (BloggingContext context = new())
+    {
+        List<Tasks> _taskList = new();
+
+        var task = context.Tasks.
+            Include(t => t.Todos);
+
+        foreach (var item in task)
+        {
+            _taskList.Add(item);
+        }
+        return _taskList;
+    }
+}
+static List<Tasks> checkAvailableTasks()
+{
+    List<Team> _allTeams = getTeams();
+    List<Tasks> _allTasks = getTasks();
 
 
+    foreach (var _singleTeam in _allTeams)
+    {
+        foreach (var _singleTask in _allTasks)
+        {
+
+            if (_singleTeam.CurrentTask.TasksId == _singleTask.TasksId)
+            {
+                _allTeams.Remove(_singleTeam);
+                _allTasks.Remove(_singleTask);
+            }
+        }
+    }
+    return _allTasks;
+}
+static List<Team> checkAvailableTeams()
+{
+    List<Team> _allTeams = getTeams();
+    List<Tasks> _allTasks = getTasks();
+
+
+    foreach (var _singleTeam in _allTeams)
+    {
+        foreach (var _singleTask in _allTasks)
+        {
+
+            if (_singleTeam.CurrentTask.TasksId == _singleTask.TasksId)
+            {
+                _allTeams.Remove(_singleTeam);
+                _allTasks.Remove(_singleTask);
+            }
+        }
+    }
+    return _allTeams;
+}
 static void giveTasks()
 {
     using (BloggingContext context = new())
     {
-        int teamId = 1;
-        int taskId = 1;
+        List<Tasks> _availableTasks = checkAvailableTasks();
+        List<Team> _availableTeams = checkAvailableTeams();
 
-        //Includes Workers in Team
-        var team = context.Teams.
-            Include(t => t.Workers).
-            Where(team => team.TeamId == teamId).
-            First();
 
-        //Includes Todos in Task
-        var task = context.Tasks.
-            Include(t => t.Todos).
-            Where(task => task.TasksId == taskId).
-            First();
 
-        Todo todoId = task.Todos.FirstOrDefault();
+        //team.CurrentTask = _taskList.Where(t => t.Todos)
+        //team.Tasks = _taskList[0];
 
-        foreach (var worker in team.Workers)
-        {
-            worker.Worker.Todos = todoId;
-            //Need to
+        //Console.WriteLine(team.CurrentTask + team.Name);
 
-            //Todo todo = task.Todos.Where(t => t.Worker)
-        }        
-        
+        //foreach (var worker in team.Workers)
+        //{
+        //    if (worker.Worker.CurrentTodo == null)
+        //    {
+        //        worker.Worker.CurrentTodo = _toDoList.FirstOrDefault();
+        //        worker.Worker.Todos = _toDoList;
+        //        _toDoList.RemoveAt(0);
+
+        //        Console.WriteLine(worker.Worker.Name);
+        //        Console.WriteLine(worker.Worker.CurrentTodo);
+
+        //    }
+        //    //Need to
+
+        //    //Todo todo = task.Todos.Where(t => t.Worker)
+        //}
+
         context.SaveChanges();
     }
 }
