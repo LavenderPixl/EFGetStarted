@@ -52,7 +52,7 @@ if (db.Teams.Count() < 1)
 {
     seedWorkers();
 }
-giveTasks();
+//giveTasks();
 printIncompleteTasksAndTodos();
 
 static void seedTasks()
@@ -115,80 +115,77 @@ static List<Tasks> getTasks()
         return _taskList;
     }
 }
-static List<Tasks> checkAvailableTasks()
-{
-    List<Team> _allTeams = getTeams();
-    List<Tasks> _allTasks = getTasks();
 
-
-    foreach (var _singleTeam in _allTeams)
-    {
-        foreach (var _singleTask in _allTasks)
-        {
-
-            if (_singleTeam.CurrentTask.TasksId == _singleTask.TasksId)
-            {
-                _allTeams.Remove(_singleTeam);
-                _allTasks.Remove(_singleTask);
-            }
-        }
-    }
-    return _allTasks;
-}
-static List<Team> checkAvailableTeams()
-{
-    List<Team> _allTeams = getTeams();
-    List<Tasks> _allTasks = getTasks();
-
-
-    foreach (var _singleTeam in _allTeams)
-    {
-        foreach (var _singleTask in _allTasks)
-        {
-
-            if (_singleTeam.CurrentTask.TasksId == _singleTask.TasksId)
-            {
-                _allTeams.Remove(_singleTeam);
-                _allTasks.Remove(_singleTask);
-            }
-        }
-    }
-    return _allTeams;
-}
 static void giveTasks()
 {
-    using (BloggingContext context = new())
+    using (var context = new BloggingContext())
     {
-        List<Tasks> _availableTasks = checkAvailableTasks();
-        List<Team> _availableTeams = checkAvailableTeams();
+        var _teams = context.Teams.Include(w => w.Workers).Where(w => w.CurrentTask == null).ToList();
+        var _availableTasks = context.Tasks.Include(t => t.Todos).ToList();
+        foreach (var worker in _teams)
+        {
 
-
-
-        //team.CurrentTask = _taskList.Where(t => t.Todos)
-        //team.Tasks = _taskList[0];
-
-        //Console.WriteLine(team.CurrentTask + team.Name);
-
-        //foreach (var worker in team.Workers)
-        //{
-        //    if (worker.Worker.CurrentTodo == null)
-        //    {
-        //        worker.Worker.CurrentTodo = _toDoList.FirstOrDefault();
-        //        worker.Worker.Todos = _toDoList;
-        //        _toDoList.RemoveAt(0);
-
-        //        Console.WriteLine(worker.Worker.Name);
-        //        Console.WriteLine(worker.Worker.CurrentTodo);
-
-        //    }
-        //    //Need to
-
-        //    //Todo todo = task.Todos.Where(t => t.Worker)
-        //}
-
-        context.SaveChanges();
+        }
     }
+    //using (var context = new BloggingContext())
+    //{
+    //    var workers = context.Workers.Where(p => p.CurrentTodo == null);
+    //    var tasks = context.Tasks.Include(task => task.Todos.Where(p => p.IsComplete == false));
+    //    foreach (var task in tasks)
+    //    {
+    //        foreach (var todo in task.Todos)
+    //        {
+    //            if (todo.IsComplete == false)
+    //            {
+    //                Console.WriteLine($"- {todo.Name} - {todo.IsComplete}");
+    //            }
+    //        }
+    //        Console.WriteLine("\n");
+    //    }
+
+    //}
 }
+
+//static List<Tasks> checkAvailableTasks()
+//{
+//    List<Team> _allTeams = getTeams();
+//    List<Tasks> _allTasks = getTasks();
+
+
+//    foreach (var _singleTeam in _allTeams)
+//    {
+//        foreach (var _singleTask in _allTasks)
+//        {
+
+//            if (_singleTeam.CurrentTask.TasksId == _singleTask.TasksId)
+//            {
+//                _allTeams.Remove(_singleTeam);
+//                _allTasks.Remove(_singleTask);
+//            }
+//        }
+//    }
+//    return _allTasks;
+//}
+//static List<Team> checkAvailableTeams()
+//{
+//    List<Team> _allTeams = getTeams();
+//    List<Tasks> _allTasks = getTasks();
+
+
+//    foreach (var _singleTeam in _allTeams)
+//    {
+//        foreach (var _singleTask in _allTasks)
+//        {
+
+//            if (_singleTeam.CurrentTask.TasksId == _singleTask.TasksId)
+//            {
+//                _allTeams.Remove(_singleTeam);
+//                _allTasks.Remove(_singleTask);
+//            }
+//        }
+//    }
+//    return _allTeams;
+//}
 
 static void seedWorkers()
 {
