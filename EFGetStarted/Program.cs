@@ -57,9 +57,9 @@ static void seedTasks()
     }
 }
 
-static List<Team> getTeams()
+static List<Team> getTeams(BloggingContext context)
 {
-    using (BloggingContext context = new())
+    using (context)
     {
         //Gets all teams.
         var team = context.Teams.Include(t => t.Workers).ThenInclude(tt => tt.Worker);
@@ -123,12 +123,58 @@ static void giveTasks()
 {
     using (BloggingContext context = new())
     {
-        List<Team> _allTeams = getTeams();
-        List<Tasks> _allTasks = getTasks();
+        //TEMPORARY!! v
+        //Gets all teams...
+        var team2 = context.Teams.Include(t => t.Workers).ThenInclude(tt => tt.Worker);
+        List<Team> _teamList = new();
+        foreach (var item in team2)
+        {
+            _teamList.Add(item);
+        }
+        //TEMPORARY!!^
+
+        //TEMPORARY!!v
+        //Gets all tasks...
+        var t = context.Tasks.Include(t => t.Todos);
+        List<Tasks> _tList = new();
+
+        foreach (var item in t)
+        {
+            _tList.Add(item);
+        }
+        //TEMPORARY!!^
+        
+        List<Team> _allTeams = _teamList;
+        List<Tasks> _allTasks = _tList;
 
         foreach (var team in _allTeams)
         {
-            List<Worker> _workerList = getWorkers(team.TeamId);
+            //TEMPORARY!!v
+            //Gets all workers IN team...
+            // var _team = context.Teams.Where(tw => tw.TeamId == teamId).Include(t => t.Workers).ThenInclude(tt => tt.Worker);
+            var _tempTeam = context.Teams.Where(te => te.TeamId == team.TeamId)
+                .Include(t => t.Workers)
+                .ThenInclude(tt => tt.Worker);
+            List<TeamWorker> _twList = new();
+            List<Worker> _wList = new();
+
+            foreach (var teamWorker in _tempTeam)
+            {
+                _twList = teamWorker.Workers.ToList();
+            }
+
+            var _ids = _twList.Select(r => r.WorkerId);
+            var _workers = context.Workers.Where(r => _ids.Contains(r.WorkerId));
+
+            foreach (var _workerBee in _workers)
+            {
+                _wList.Add(_workerBee);
+            }
+            
+            //TEMPORARY!!^
+
+            List<Worker> _workerList = _wList;
+            // List<Worker> _workerList = getWorkers(team.TeamId);
 
             if (team.CurrentTask == null)
             {
